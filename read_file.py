@@ -3,7 +3,7 @@ import os
 
 def file_names(path):
 
-    file_names = [f for f in os.listdir(path) if os.isfile(os.join(path, f))]
+    file_names = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
     return file_names
 
 def associate_first_name(name):
@@ -20,21 +20,24 @@ def associate_first_name(name):
 
 def convert(file_list):
     for name in file_list:
-        with open(name) as f:
-            text = f.read(-1)
-        text.lower()
-        cleaned_file = open("cleaned/" + name, "w")
+        with open(name, encoding = "utf-8") as f:
+            text = f.read()
+            for i,l in enumerate(text):
+                if(97 <= ord(l) >= 122):
+                    print(ord(l))
+                    text[i].lower()
+        cleaned_file = open(name, "w", encoding = "utf-8")
         cleaned_file.write(text)
         cleaned_file.close()
 
 def clean(file_name):
-    with open(file_name, "w") as f:
-        text = f.read(-1)
+    with open(file_name, "a+", encoding = "utf-8") as f:
+        text = f.read()
         for l in text:
                 if(letter == "'" or letter == "-" or letter == "\n"):
                     letter = " "
                 if(letter == "." or letter == "," or letter == "!" or letter == "?"):
                     letter = ""
-        text.write(text)
+        f.write(text)
 
 
