@@ -17,17 +17,15 @@ def associate_first_name(name):
     }
     return presidents_names[name]
 
+def convert(file):
+    with open("speeches/" + file, "r", encoding= "utf-8") as f:
+        text = f.read(-1)
+    with open("cleaned/" + file, "w", encoding= "utf-8") as f:
+        f.write(text.lower())
 
-def convert(file_list):
-    for name in file_list:
-        with open(name, encoding = "utf-8") as f:
-            text = f.read()
-            for i,l in enumerate(text):
-                if ord('A') <= ord(l) <= ord('Z'):
-                    text[i].lower()
-        cleaned_file = open(name, "r+", encoding = "utf-8")
-        cleaned_file.write(text)
-        cleaned_file.close()
+def convert_files(file_list):
+    for file in file_list:
+        convert(file)
 
 def clean(file_name):
     with open(file_name, "a+", encoding = "utf-8") as f:

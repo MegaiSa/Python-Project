@@ -1,33 +1,47 @@
 import read_file as rf
-import math as m
+import math 
 import os
 
-def tf_idf(directory):
+def tf_counter(file):
+    tf_counter = {}
+    with open(file, "r", encoding= "utf-8") as f:
+        text = f.read().split(" ")
+    for word in text:
+        if word in tf_counter.keys():
+            tf_counter[word] += 1
+        else:
+            tf_counter[word] = 1
+    return tf_counter
 
+
+def idf_counter(directory):
+
+    nb_appearance = {}
+    idf_counter = {}
     files = rf.file_names(directory)
-    old_dir = os.getcwd()
-    os.chdir(directory)
-    rf.convert(files)
-    os.chdir(old_dir)
+    rf.convert_files(files)
     os.chdir("cleaned")
     for f in files:
         rf.clean(f)
-    idf_counter = {}
-    for file in files:
-        with open(file, "r") as f:
-            text = f.read()
-        text.split(" ")
-        for word in text:
-            if word in idf_counter.keys():
-                idf_counter[word] += 1
+        tf = tf_counter(f)
+        for w in tf.keys():
+            if w in nb_appearance.keys():
+                nb_appearance[w] += 1
+            else: 
+                nb_appearance[w] = 1
+            if w in idf_counter.keys():
+                idf_counter[w] += tf[w]
             else:
-                idf_counter[word] = 1
-    for w in idf_counter.keys():
-        idf_counter[w] = 1/m.log(idf_counter[w])
+                idf_counter[w] = tf[w]
+    for m in idf_counter.keys():
+        idf_counter[w] = math.log10(len(files)/nb_appearance[w])
     return idf_counter
 
+
+
 if __name__ == "__main__":
-    print(tf_idf("speeches"))
+    print(idf_counter("speeches"))
+
 
 
     
