@@ -29,4 +29,5 @@ def tf_idf(directory):
 if __name__ == "__main__":
     print(tf_idf("speeches"))
 
+
     

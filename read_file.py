@@ -23,10 +23,9 @@ def convert(file_list):
         with open(name, encoding = "utf-8") as f:
             text = f.read()
             for i,l in enumerate(text):
-                if(97 <= ord(l) >= 122):
-                    print(ord(l))
+                if ord('A') <= ord(l) <= ord('Z'):
                     text[i].lower()
-        cleaned_file = open(name, "w", encoding = "utf-8")
+        cleaned_file = open(name, "r+", encoding = "utf-8")
         cleaned_file.write(text)
         cleaned_file.close()
 
