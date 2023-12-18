@@ -28,13 +28,17 @@ def convert_files(file_list):
         convert(file)
 
 def clean(file_name):
-    with open(file_name, "a+", encoding = "utf-8") as f:
+    with open(file_name, "r", encoding = "utf-8") as f:
         text = f.read()
-        for l in text:
-                if(letter == "'" or letter == "-" or letter == "\n"):
-                    letter = " "
-                if(letter == "." or letter == "," or letter == "!" or letter == "?"):
-                    letter = ""
-        f.write(text)
+    cleaned = ""
+    for letter in text:
+            if(letter == "'" or letter == "-" or letter == "\n"):
+                cleaned += " "
+            elif(letter == "." or letter == "," or letter == "!" or letter == "?"):
+                cleaned += ""
+            else:
+                cleaned += letter
+    with open(file_name, "w", encoding = "utf-8") as f:
+        f.write(cleaned)
 
 
