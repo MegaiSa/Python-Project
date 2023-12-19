@@ -28,24 +28,24 @@ def tf_question(question, doc_tf):
             tf_counter[w] += 1
         elif (w in question) and not(w in tf_counter.keys()):
             tf_counter[w] = 1
-        else:
-            tf_counter[w] = 0
     return tf_counter
 
 def idf_question(question, doc_idf):
     idf_counter = {}
     for w in question:
         if not(w in idf_counter.keys()):
-            idf_counter[w] = doc_idf[w]
+            if w in doc_idf.keys():
+                idf_counter[w] = doc_idf[w]
     return idf_counter
 
-def tf_idf_question(question, doc_tf, doc_idf):
-    cleaned = clean_question(question)
+def tf_idf_question(question, files):
     tf_idf = []
-    tf = tf_question(cleaned, doc_tf)
-    idf = idf_question(cleaned, doc_idf)
+    doc_idf = ti.idf_counter(files)
+    tf = tf_question(question, ti.tf_counter(files[1]))
+    idf = idf_question(question, doc_idf)
     for w in tf:
-        if ( tf[w] * idf[w]) : tf_idf.append(tf[w] * idf[w])
+        if tf[w]:
+            tf_idf.append(tf[w] * idf[w])
     return tf_idf
 
 def scalar_product(v1, v2):
@@ -57,7 +57,7 @@ def scalar_product(v1, v2):
 def get_norm(v):
     norm = 0
     for i in range(len(v)):
-        norm = v[i] ^ 2
+        norm = v[i] ** 2
     return math.sqrt(norm)
 
 def similarity(v1, v2):
@@ -69,3 +69,46 @@ def most_relevant(matrix, vector, files):
         if similarity(v, vector) > similarity(vector, matrix[most_relevant]): most_relevant = i
     return files[most_relevant]
 
+def answer(question, files, doc_matrix):
+    maxi = 0
+    tf_idf = tf_idf_question(question, files)
+    idf_corpus = list(ti.idf_counter(files))
+    tf_idf_score = tf_idf_question(question, files)
+    for value in tf_idf_score:
+        if value > maxi:
+            maxi = value
+    answer = ""
+    first_occ = 0
+    start_sent = 0
+    end_sent = 0
+    final_answer = ""
+    with open(f"speeches/{most_relevant(doc_matrix, tf_idf, files)}", "r", encoding="utf-8") as f1:
+        texte = f1.read().split()
+        while texte[first_occ] != idf_corpus[tf_idf_score.index(maxi)]:
+            first_occ += 1
+        ponctuation = [".", "!", "?"]
+        for i in range(first_occ, 0, -1):
+            if texte[i-1][-1] in ponctuation and start_sent == 0:
+                start_sent = i
+        for i in range(first_occ, len(texte), 1):
+            if texte[i].split("\n")[0][-1] in ponctuation and end_sent == 0:
+                end_sent = i
+        for i in range(start_sent, end_sent, 1):
+            answer += texte[i] + " "
+        answer += texte[end_sent].split("\n")[0]
+        answer = chr(ord(answer[0])+32)+answer[1:]
+
+    starters = {
+        "Comment": "Après analyse, ",
+        "Pourquoi": "Car, ",
+        "Peux-tu": "Oui, bien sûr! "
+    }
+
+    for i in starters:
+        if question.startswith(i):
+            final_answer = starters[i]+answer
+            break
+    if final_answer != "":
+        return(final_answer)
+    else:
+        return(answer)
