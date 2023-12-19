@@ -7,7 +7,7 @@ import final_score as fs
 def menu(files, doc_matrix):
     welcome = """
             Welcome
-          [1] : Enter ChatBot mode : Ask your own question and get approximative answers !
+          [1] : Ask question to ChatBot !
           [2] : Close 
           
           """

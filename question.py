@@ -28,23 +28,23 @@ def tf_question(question, doc_tf):
             tf_counter[w] += 1
         elif (w in question) and not(w in tf_counter.keys()):
             tf_counter[w] = 1
+        else:
+            tf_counter[w] = 0
     return tf_counter
 
-def idf_question(question, doc_idf):
-    idf_counter = {}
-    for w in question:
-        if not(w in idf_counter.keys()):
-            if w in doc_idf.keys():
-                idf_counter[w] = doc_idf[w]
-    return idf_counter
 
 def tf_idf_question(question, files):
+    idf = ti.idf_counter(files)
     tf_idf = []
     doc_idf = ti.idf_counter(files)
-    tf = tf_question(question, ti.tf_counter(files[1]))
-    idf = idf_question(question, doc_idf)
+    tf = {}
+    for f in files:
+        for v in ti.tf_counter(f).keys():
+            if not(v in tf):
+                tf[v] = ti.tf_counter(f)[v] 
+            else:
+                tf[v] += ti.tf_counter(f)[v] 
     for w in tf:
-        if tf[w]:
             tf_idf.append(tf[w] * idf[w])
     return tf_idf
 
@@ -61,12 +61,15 @@ def get_norm(v):
     return math.sqrt(norm)
 
 def similarity(v1, v2):
+    if get_norm(v1) == 0 or get_norm(v2) == 0:
+        return 0
     return scalar_product(v1,v2)/(get_norm(v1) * get_norm(v2))
 
 def most_relevant(matrix, vector, files):
     most_relevant = 0
     for i,v in enumerate(matrix):
-        if similarity(v, vector) > similarity(vector, matrix[most_relevant]): most_relevant = i
+        if similarity(v, vector) > similarity(vector, matrix[most_relevant]): 
+            most_relevant = i
     return files[most_relevant]
 
 def answer(question, files, doc_matrix):
@@ -82,7 +85,7 @@ def answer(question, files, doc_matrix):
     start_sent = 0
     end_sent = 0
     final_answer = ""
-    with open(f"speeches/{most_relevant(doc_matrix, tf_idf, files)}", "r", encoding="utf-8") as f1:
+    with open(most_relevant(doc_matrix, tf_idf, files), "r", encoding="utf-8") as f1:
         texte = f1.read().split()
         while texte[first_occ] != idf_corpus[tf_idf_score.index(maxi)]:
             first_occ += 1
