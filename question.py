@@ -34,16 +34,18 @@ def tf_question(question, doc_tf):
 
 
 def tf_idf_question(question, files):
+    tf_doc = {}
+    for file in files:
+        with open(file, encoding= "utf-8") as f:
+            tf_file = ti.tf_counter(file)
+            for w in tf_file.keys():
+                if w in tf_doc.keys():
+                    tf_doc[w] += tf_file[w]
+                else:
+                    tf_doc[w] = tf_file[w]
+    tf = tf_question(question, tf_doc)
     idf = ti.idf_counter(files)
     tf_idf = []
-    doc_idf = ti.idf_counter(files)
-    tf = {}
-    for f in files:
-        for v in ti.tf_counter(f).keys():
-            if not(v in tf):
-                tf[v] = ti.tf_counter(f)[v] 
-            else:
-                tf[v] += ti.tf_counter(f)[v] 
     for w in tf:
             tf_idf.append(tf[w] * idf[w])
     return tf_idf
@@ -74,10 +76,9 @@ def most_relevant(matrix, vector, files):
 
 def answer(question, files, doc_matrix):
     maxi = 0
-    tf_idf = tf_idf_question(question, files)
     idf_corpus = list(ti.idf_counter(files))
-    tf_idf_score = tf_idf_question(question, files)
-    for value in tf_idf_score:
+    tf_idf = tf_idf_question(question, files)
+    for value in tf_idf:
         if value > maxi:
             maxi = value
     answer = ""
@@ -87,11 +88,11 @@ def answer(question, files, doc_matrix):
     final_answer = ""
     with open(most_relevant(doc_matrix, tf_idf, files), "r", encoding="utf-8") as f1:
         texte = f1.read().split()
-        while texte[first_occ] != idf_corpus[tf_idf_score.index(maxi)]:
+        while texte[first_occ] != idf_corpus[tf_idf.index(maxi)]:
             first_occ += 1
         ponctuation = [".", "!", "?"]
         for i in range(first_occ, 0, -1):
-            if texte[i-1][-1] in ponctuation and start_sent == 0:
+            if texte[i-1][-1] in ponctuation and start_sent == 0 :
                 start_sent = i
         for i in range(first_occ, len(texte), 1):
             if texte[i].split("\n")[0][-1] in ponctuation and end_sent == 0:
@@ -108,10 +109,30 @@ def answer(question, files, doc_matrix):
     }
 
     for i in starters:
-        if question.startswith(i):
+        if question[0] == i:
             final_answer = starters[i]+answer
             break
     if final_answer != "":
         return(final_answer)
     else:
         return(answer)
+"""    
+def highest_score(words, files):
+    highest = words[0]
+    highest_score = tf_idf_question(words[0])
+    for word in words:
+        w_tf_idf = tf_idf(word)
+        if w_tf_idf > highest_score:
+        highest = word
+
+def generate_answer(question, files, doc_matrix):
+    highest = highest_score(question, files)
+    question_matrix = tf_idf_question(question, files)
+    most_relevant = most_relevant(doc_matrix, question_matrix, files)
+    first_occ = 0
+    tf_question = 
+    with open(most_relevant, "r", encoding="utf-8") as f:
+        text = f.read.split(" ")
+        for w in text:
+            tf_
+"""
